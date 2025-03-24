@@ -33,7 +33,10 @@ public class REPOShock : BaseUnityPlugin
 	private ConfigEntry<string> configUserName { get; set; }
 	private ConfigEntry<string> configAPIKey { get; set; }
 	private ConfigEntry<string> configShareCodes { get; set; }
-
+	public static ConfigEntry<int> ConfigMaxIntensity { get; private set; }
+	public static ConfigEntry<int> ConfigDeathIntensity { get; private set; }
+	public static ConfigEntry<int> ConfigDeathDuration { get; private set; }
+	public static ConfigEntry<float> ConfigDamageInteravl {  get; private set; }
 
 
 	private void Awake()
@@ -74,7 +77,7 @@ public class REPOShock : BaseUnityPlugin
 
 	private async Task InitConfig()
 	{
-
+		// API Config
 		configUserName = Config.Bind("PiShock Auth",
 			"UserName",
 			"",
@@ -87,6 +90,32 @@ public class REPOShock : BaseUnityPlugin
 			"ShareCodes",
 			"",
 			"Comma separated list of share codes");
+
+		// Settings Config
+		ConfigMaxIntensity = Config.Bind("Settings",
+			"Max Intensity",
+			100,
+			"The maximum amount of an intensity a shock will ever be. (1-100)");
+		if (ConfigMaxIntensity.Value < 1 || ConfigMaxIntensity.Value > 100)
+			throw new ArgumentOutOfRangeException("Max intensity cannot be less than 1 or greater than 100");
+		ConfigDamageInteravl = Config.Bind("Settings",
+			"Damage Interval",
+			1.0f,
+			"The intensity for each damage dealt to you. Shock will always be round up (0.1 - 100)");
+		if (ConfigDamageInteravl.Value < 0.1 || ConfigDamageInteravl.Value > 100)
+			throw new ArgumentOutOfRangeException("Damage Interval cannot be less than 0.1 or greater than 100");
+		ConfigDeathIntensity = Config.Bind("Settings",
+			"Death Intensity",
+			50,
+			"The intensity when you die. (1-100)");
+		if (ConfigDeathIntensity.Value < 1 || ConfigDeathIntensity.Value > 100)
+			throw new ArgumentOutOfRangeException("Death Intensity cannot be less than 1 or greater than 100");
+		ConfigDeathDuration = Config.Bind("Settings",
+			"Max Duration",
+			3,
+			"The duration when you die. (1-15)");
+		if (ConfigDeathDuration.Value < 1 || ConfigDeathDuration.Value > 15)
+			throw new ArgumentOutOfRangeException("Death Duration cannot be less than 1 or greater than 15");
 
 		try
 		{

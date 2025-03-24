@@ -18,9 +18,9 @@ static class PlayerHealthPatch
 			return;
 		if (damage == 0)
 			return;
-		int shockIntensity = damage / 2;
-		if (shockIntensity > 80)
-			shockIntensity = 80;
+		int shockIntensity = (int)Math.Ceiling(damage / REPOShock.ConfigDamageInteravl.Value);
+		if (shockIntensity > REPOShock.ConfigMaxIntensity.Value)
+			shockIntensity = REPOShock.ConfigMaxIntensity.Value;
 		else if (shockIntensity < 1)
 			shockIntensity = 1;
 		REPOShock.PiShockController.OperatePiShock(shockIntensity, 1, PiShockOperations.Shock);

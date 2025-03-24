@@ -16,7 +16,9 @@ static class PlayerAvatarPatch
 			return;
 
 		ModGlobals.IsAlive = false;
-		REPOShock.PiShockController.OperatePiShock(25, 3, PiShockOperations.Shock);
+		int intensity = REPOShock.ConfigDeathIntensity.Value;
+		int duration = REPOShock.ConfigDeathDuration.Value;
+		REPOShock.PiShockController.OperatePiShock(intensity, duration, PiShockOperations.Shock);
 		REPOShock.Logger.LogInfo("Played died");
 	}
 
