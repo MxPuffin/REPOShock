@@ -22,6 +22,11 @@ namespace REPOShock
 			_userInfo = piShockUserInfo;
 		}
 
+		public static int ClampShock(int intensity)
+		{
+			return Math.Clamp(intensity, 1, ConfigHandler.ConfigMaxIntensity.Value);
+		}
+
 		public void OperatePiShock(int intensity, int duration, PiShockOperations op)
 		{
 			Task.Run(async () =>

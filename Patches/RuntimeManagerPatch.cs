@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace REPOShock.Patches;
@@ -10,29 +11,28 @@ namespace REPOShock.Patches;
 [HarmonyPatch(typeof(RunManager))]
 static class RunManagerPatch
 {
+
 	[HarmonyPostfix, HarmonyPatch(nameof(RunManager.ChangeLevel))]
 	public static void ChangeLevel(RunManager __instance)
 	{
-		if (__instance == null) return;
+		UpdateLevelInfoAndResetState(__instance.levelCurrent.name);
+	}
 
-		var levelField = typeof(RunManager).GetField("levelCurrent");
+	[HarmonyPostfix, HarmonyPatch(nameof(RunManager.UpdateLevel))]
+	public static void UpdateLevel(RunManager __instance, ref string _levelName, ref bool _gameOver)
+	{
+		UpdateLevelInfoAndResetState(_levelName);
+	}
 
-		if (levelField != null)
+	private static void UpdateLevelInfoAndResetState(string level)
+	{
+		var levelName = level.Replace("Level - ", "");
+		ModGlobals.UpdateLevel(levelName.Trim());
+
+		ModGlobals.RecentlyHeldObjects.Clear();
+		if (!ModGlobals.IsAlive)
 		{
-			var levelCurrent = levelField.GetValue(__instance);
-
-			if (levelCurrent != null)
-			{
-				var nameField = levelCurrent.GetType().GetProperty("name");
-
-				if (nameField != null)
-				{
-					string levelName = ((ScriptableObject)levelCurrent).name;
-					levelName = levelName.Replace("Level - ", "");
-					ModGlobals.CurrentLevel = levelName.Trim();
-					ModGlobals.EvaluateIsSafeLevel();
-				}
-			}
+			ModGlobals.Revive();
 		}
 	}
 }

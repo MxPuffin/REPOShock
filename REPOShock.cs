@@ -14,6 +14,7 @@ using ExitGames.Client.Photon.StructWrapping;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using PiShockClassLibrary.Interfaces;
 
 namespace REPOShock;
 
@@ -21,6 +22,7 @@ namespace REPOShock;
 public class REPOShock : BaseUnityPlugin
 {
 	internal static REPOShock Instance { get; private set; } = null!;
+	internal static ConfigFile CFG { get; private set; }
 	internal new static ManualLogSource Logger => Instance._logger;
 	private ManualLogSource _logger => base.Logger;
 	internal Harmony? Harmony { get; set; }
@@ -30,13 +32,6 @@ public class REPOShock : BaseUnityPlugin
 	private PiShockUserInfo? PiShockUserInfo { get; set; }
 	internal static PiShockController? PiShockController { get; set; }
 
-	private ConfigEntry<string> configUserName { get; set; }
-	private ConfigEntry<string> configAPIKey { get; set; }
-	private ConfigEntry<string> configShareCodes { get; set; }
-	public static ConfigEntry<int> ConfigMaxIntensity { get; private set; }
-	public static ConfigEntry<int> ConfigDeathIntensity { get; private set; }
-	public static ConfigEntry<int> ConfigDeathDuration { get; private set; }
-	public static ConfigEntry<float> ConfigDamageInteravl {  get; private set; }
 
 
 	private void Awake()
@@ -46,18 +41,23 @@ public class REPOShock : BaseUnityPlugin
 		// Prevent the plugin from being deleted
 		this.gameObject.transform.parent = null;
 		this.gameObject.hideFlags = HideFlags.HideAndDontSave;
+		CFG = Config;
 
 
 		httpClient = new HttpClient();
 		PiShockAPI = new PiShockAPI(httpClient);
+
 		PiShockLogger.LogInfoAction = Logger.LogInfo;
 		PiShockLogger.LogErrorAction = Logger.LogError;
-		InitConfig();
+
+		LoadConfigAndLogin();
 
 		Patch();
 
 		Logger.LogInfo($"{Info.Metadata.GUID} v{Info.Metadata.Version} has loaded!");
 	}
+
+
 
 	internal void Patch()
 	{
@@ -75,77 +75,52 @@ public class REPOShock : BaseUnityPlugin
 		// Code that runs every frame goes here
 	}
 
-	private async Task InitConfig()
+	private async Task LoadConfigAndLogin()
 	{
+		ConfigHandler.InitConfig();
 		// API Config
-		configUserName = Config.Bind("PiShock Auth",
+		var _configUserName = CFG.Bind("Auth_PiShock",
 			"UserName",
 			"",
 			"Your PiShock username");
-		configAPIKey = Config.Bind("PiShock Auth",
+		var _configAPIKey = CFG.Bind("Auth_PiShock",
 			"APIKey",
 			"",
 			"Your PiShock API Key");
-		configShareCodes = Config.Bind("PiShock Auth",
-			"ShareCodes",
-			"",
+		var _configShareCodes = CFG.Bind("Auth_PiShock",
+		"ShareCodes",
+		"",
 			"Comma separated list of share codes");
-
-		// Settings Config
-		ConfigMaxIntensity = Config.Bind("Settings",
-			"Max Intensity",
-			100,
-			"The maximum amount of an intensity a shock will ever be. (1-100)");
-		if (ConfigMaxIntensity.Value < 1 || ConfigMaxIntensity.Value > 100)
-			throw new ArgumentOutOfRangeException("Max intensity cannot be less than 1 or greater than 100");
-		ConfigDamageInteravl = Config.Bind("Settings",
-			"Damage Interval",
-			1.0f,
-			"The intensity for each damage dealt to you. Shock will always be round up (0.1 - 100)");
-		if (ConfigDamageInteravl.Value < 0.1 || ConfigDamageInteravl.Value > 100)
-			throw new ArgumentOutOfRangeException("Damage Interval cannot be less than 0.1 or greater than 100");
-		ConfigDeathIntensity = Config.Bind("Settings",
-			"Death Intensity",
-			50,
-			"The intensity when you die. (1-100)");
-		if (ConfigDeathIntensity.Value < 1 || ConfigDeathIntensity.Value > 100)
-			throw new ArgumentOutOfRangeException("Death Intensity cannot be less than 1 or greater than 100");
-		ConfigDeathDuration = Config.Bind("Settings",
-			"Max Duration",
-			3,
-			"The duration when you die. (1-15)");
-		if (ConfigDeathDuration.Value < 1 || ConfigDeathDuration.Value > 15)
-			throw new ArgumentOutOfRangeException("Death Duration cannot be less than 1 or greater than 15");
 
 		try
 		{
-			if (string.IsNullOrEmpty(configUserName.Value) || string.IsNullOrEmpty(configAPIKey.Value))
-			{
+			if (string.IsNullOrEmpty(_configUserName.Value) || string.IsNullOrEmpty(_configAPIKey.Value))
 				throw new ArgumentException("Username and APIKey cannot be empty! Please add your Username and APIKey to the config!");
-			}
-			if (string.IsNullOrEmpty(configShareCodes.Value))
-			{
-				throw new ArgumentException("You have to enter atleast 1 Share Code! If you have multiple, you can separate them with commas like so \"abc123,def456\".");
-			}
 
-			var sharecodes = configShareCodes.Value.Split(',');
+			if (string.IsNullOrEmpty(_configShareCodes.Value))
+				throw new ArgumentException("You have to enter atleast 1 Share Code! If you have multiple, you can separate them with commas like so \"abc123,def456\".");
+			var sharecodes = _configShareCodes.Value.Split(',');
 			var devices = new List<PiShockDeviceInfo>();
 			for (int i = 0; i < sharecodes.Length; i++)
 			{
 				devices.Add(new PiShockDeviceInfo($"Shocker {i}", sharecodes[i]));
 			}
-			
-			PiShockUserInfo = await PiShockAPI.GetUserInfoFromAPI(configUserName.Value, configAPIKey.Value);
-			PiShockUserInfo = PiShockUserInfo.WithDevices(devices);
 
-			Logger.LogInfo($"Logged into PiShock as {PiShockUserInfo.Username}");
+			var userInfo = await PiShockAPI.GetUserInfoFromAPI(_configUserName.Value, _configAPIKey.Value);
+			userInfo = userInfo.WithDevices(devices);
 
-			PiShockController = new PiShockController(PiShockAPI, PiShockUserInfo);
+			var controller = new PiShockController(PiShockAPI, userInfo);
+
+			PiShockUserInfo = userInfo;
+			PiShockController = controller;
+
+			Logger.LogInfo($"Logged into PiShock as {userInfo.Username}");
 		}
 		catch (Exception ex)
-		{ 
+		{
 			Logger.LogError(ex.Message);
 		}
+
 
 	}
 }
