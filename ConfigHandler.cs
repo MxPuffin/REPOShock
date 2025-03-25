@@ -26,6 +26,10 @@ namespace REPOShock
 		public static ConfigEntry<float>? ConfigBreakValueDmgMult { get; private set; }
 		public static ConfigEntry<int>? ConfigBreakShockWindow { get; private set; }
 
+
+		public static ConfigEntry<float>? ThrownOffensiveGracePeriod { get; private set; } //= 2;
+		public static ConfigEntry<float>? HitOffensiveGracePeriod { get; private set; } //= 3;
+
 		public static void InitConfig()
 		{
 			// Settings Config
@@ -64,13 +68,6 @@ namespace REPOShock
 				true,
 				"If enabled, will shock you whenever a valuable item you're holding takes damage.");
 
-			ConfigBreakIgnoreEnemy = REPOShock.CFG.Bind("Settings_Items",
-				"Ignore_Hitting_Enemies",
-				true,
-				"If enabled, hitting an enemy with an item won't shock you. This also means if an\n" +
-				"enemy breaks an item you recently dropped, it also wont shock you as an unfortunate\n" +
-				"side effect.");
-
 			ConfigMapValueToShock = REPOShock.CFG.Bind("Settings_Items",
 				"Map_Value_to_Shock",
 				false,
@@ -89,6 +86,24 @@ namespace REPOShock
 				15,
 				"The amount of time a Valuable Object you have touched is tied to you.\n" +
 				"If it gets damaged during this period, you will get shocked.");
+
+			// Config for breaking items offensive
+
+			ConfigBreakIgnoreEnemy = REPOShock.CFG.Bind("Settings_Items",
+				"Ignore_Hitting_Enemies",
+				true,
+				"If enabled, hitting an enemy with an item won't shock you.");
+			ThrownOffensiveGracePeriod = REPOShock.CFG.Bind("Settings_Items",
+				"Thrown_Offensive_Grace_Period",
+				2.0f,
+				"The amount of time an object you let go of has to hit an enemy before it shocks you.\n" +
+				"This also starts the HitOffensiveGracePeriod, so you can keep using it as a weapon.");
+			HitOffensiveGracePeriod = REPOShock.CFG.Bind("Settings_Items",
+				"Hit_Offensive_Grace_Period",
+				3.0f,
+				"The amount of time an object you use as a weapon has before it causes you to get\n" +
+				"shocked again. After this times up, if you don't hit an enemy again, the item goes\n" +
+				"back to shocking you if it takes damage.");
 		}
 	}
 

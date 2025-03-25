@@ -12,9 +12,6 @@ static class PhysGrabObjectImpactDetectorPatch
 {
 	private static bool _lastHitEnemy = false;
 
-	private static float _thrownOffensiveGracePeriod = 2;
-	private static float _hitOffensiveGracePeriod = 3;
-
 	[HarmonyPrefix, HarmonyPatch(nameof(PhysGrabObjectImpactDetector.OnCollisionStay))]
 	private static void OnCollisionStay(ref Collision collision)
 	{
@@ -86,26 +83,26 @@ static class PhysGrabObjectImpactDetectorPatch
 
 		var lastHeldTime = ModGlobals.RecentlyHeldObjects[damagedObject];
 
-		if (ModGlobals.LastOffensiveObject == damagedObject 
-			&& Time.time - ModGlobals.LastOffensiveGracePeriodTime <= _hitOffensiveGracePeriod)
-		{
-			REPOShock.Logger.LogInfo("Recently used 'weapon' hit ground, aborting");
-			return;
-		}
-
 		if (isHeldByLocalPlayer && _lastHitEnemy)
 		{
-			REPOShock.Logger.LogInfo("Enemy hit, aborting");
 			ModGlobals.LastOffensiveGracePeriodTime = Time.time;
 			ModGlobals.LastOffensiveObject = damagedObject;
+			REPOShock.Logger.LogInfo("Enemy hit, aborting shock");
 			return;
 		}
 
-		if (_lastHitEnemy && Time.time - lastHeldTime <= _thrownOffensiveGracePeriod)
+		if (_lastHitEnemy && Time.time - lastHeldTime <= ConfigHandler.ThrownOffensiveGracePeriod.Value)
 		{
 			ModGlobals.LastOffensiveGracePeriodTime = Time.time;
 			ModGlobals.LastOffensiveObject = damagedObject;
-			REPOShock.Logger.LogInfo("Enemy hit in grace period, aborting");
+			REPOShock.Logger.LogInfo("Enemy hit in thrown grace period, aborting shock");
+			return;
+		}
+
+		if (ModGlobals.LastOffensiveObject == damagedObject
+			&& Time.time - ModGlobals.LastOffensiveGracePeriodTime <= ConfigHandler.HitOffensiveGracePeriod.Value)
+		{
+			REPOShock.Logger.LogInfo("Recently used 'weapon' took damage, aborting shock");
 			return;
 		}
 
