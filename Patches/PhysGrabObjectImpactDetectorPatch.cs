@@ -65,7 +65,6 @@ static class PhysGrabObjectImpactDetectorPatch
 			if (!ModGlobals.RecentlyHeldObjects.ContainsKey(__instance.gameObject))
 			{
 				ModGlobals.RecentlyHeldObjects.Add(__instance.gameObject, Time.time);
-				ModGlobals.LastOffensiveGracePeriodTime = 0;
 				REPOShock.Logger.LogInfo($"Object {__instance.gameObject.name} added to held objects.");
 			}
 			else
