@@ -4,7 +4,7 @@ schemaVersion = "0.0.1"
 [package]
 namespace = "mxpuffin"
 name = "REPOShock"
-versionNumber = "0.0.4"
+versionNumber = "0.0.5"
 description = "A mod for R.E.P.O that adds PiShock integration"
 websiteUrl = "https://github.com/MxPuffin/REPOShock"
 containsNsfwContent = false
@@ -14,7 +14,7 @@ BepInEx-BepInExPack = "5.4.2100"
 
 [build]
 icon = "./icon.png"
-readme = "./README.md"
+readme = "../README.md"
 outdir = "./build"
 
 [[build.copy]]

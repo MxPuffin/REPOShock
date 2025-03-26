@@ -23,4 +23,4 @@ It is fine to share a pack that **doesn't** have config set, but if you set your
 3. Add a share code (or multiple, separated by commas)
 4. Enter your desired config
 
-That should be it! If you have issues, check the Bepin Console for more details.
+That should be it! If you have issues, check the BepIn Console for more details.

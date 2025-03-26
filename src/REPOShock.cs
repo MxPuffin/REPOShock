@@ -90,7 +90,7 @@ public class REPOShock : BaseUnityPlugin
         var _configShareCodes = CFG.Bind("Auth_PiShock",
         "ShareCodes",
         "",
-            "Comma separated list of share codes");
+			"Enter your sharecodes here! If you have multiple, you can separate them with commas like so \"abc123,def456\"");
 
         try
         {
@@ -113,8 +113,6 @@ public class REPOShock : BaseUnityPlugin
 
             PiShockUserInfo = userInfo;
             PiShockController = controller;
-
-            Logger.LogInfo($"Logged into PiShock as {userInfo.Username}");
         }
         catch (Exception ex)
         {

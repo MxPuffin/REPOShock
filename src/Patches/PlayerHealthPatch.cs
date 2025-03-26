@@ -23,7 +23,7 @@ static class PlayerHealthPatch
         if (damage == 0)
             return;
 
-        int shockIntensity = (int)Math.Ceiling(damage / ConfigHandler.ConfigDamageInteravl.Value);
+        int shockIntensity = (int)Math.Ceiling(damage * ConfigHandler.ConfigDamageInteravl.Value);
         shockIntensity = PiShockController.ClampShock(shockIntensity);
 
         REPOShock.PiShockController?.OperatePiShock(shockIntensity, 1, PiShockOperations.Shock);
