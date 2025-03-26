@@ -3,8 +3,8 @@ schemaVersion = "0.0.1"
 
 [package]
 namespace = "mxpuffin"
-name = "REPO Shock"
-versionNumber = "0.0.3"
+name = "REPOShock"
+versionNumber = "0.0.4"
 description = "A mod for R.E.P.O that adds PiShock integration"
 websiteUrl = "https://github.com/MxPuffin/REPOShock"
 containsNsfwContent = false
@@ -27,11 +27,11 @@ target = "/"
 
 [[build.copy]]
 source = "../bin/Release/netstandard2.1/REPOShock.dll"
-target = "/BepInEx/plugins/mxpuffin-REPO Shock/REPOShock.dll"
+target = "/BepInEx/plugins/mxpuffin-REPOShock/REPOShock.dll"
 
 [[build.copy]]
 source = "../bin/Release/netstandard2.1/PiShockClassLibrary.dll"
-target = "/BepInEx/plugins/mxpuffin-REPO Shock/PiShockClassLibrary.dll"
+target = "/BepInEx/plugins/mxpuffin-REPOShock/PiShockClassLibrary.dll"
 
 [publish]
 repository = "https://github.com/MxPuffin/REPOShock"
