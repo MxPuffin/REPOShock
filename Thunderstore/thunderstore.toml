@@ -4,7 +4,7 @@ schemaVersion = "0.0.1"
 [package]
 namespace = "mxpuffin"
 name = "REPOShock"
-versionNumber = "0.0.5"
+versionNumber = "0.0.8"
 description = "A mod for R.E.P.O that adds PiShock integration"
 websiteUrl = "https://github.com/MxPuffin/REPOShock"
 containsNsfwContent = false

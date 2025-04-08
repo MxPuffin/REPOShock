@@ -16,6 +16,7 @@ namespace REPOShock.src
     {
         private PiShockAPI _piShockAPI;
         private PiShockUserInfo _userInfo;
+        private AsyncPiShockRequestQueue _queue = new();
         public PiShockController(PiShockAPI piShockAPI, PiShockUserInfo piShockUserInfo)
         {
             _piShockAPI = piShockAPI;

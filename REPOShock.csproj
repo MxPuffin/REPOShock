@@ -28,12 +28,12 @@
     <PackageReference Include="R.E.P.O.GameLibs.Steam" Version="*-*" PrivateAssets="all" Publicize="true" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Thunderstore\build\" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="PiShockClassLibrary">
       <HintPath>..\PiShockLibrary_NetFramework4.7.2\bin\Release\PiShockClassLibrary.dll</HintPath>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Thunderstore\build\" />
   </ItemGroup>
 
 </Project>

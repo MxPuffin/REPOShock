@@ -34,7 +34,7 @@ public class REPOShock : BaseUnityPlugin
 
 
 
-    private void Awake()
+    private async void Awake()
     {
         Instance = this;
 
@@ -50,7 +50,7 @@ public class REPOShock : BaseUnityPlugin
         PiShockLogger.LogInfoAction = Logger.LogInfo;
         PiShockLogger.LogErrorAction = Logger.LogError;
 
-        LoadConfigAndLogin();
+        await LoadConfigAndLogin();
 
         Patch();
 
@@ -106,7 +106,9 @@ public class REPOShock : BaseUnityPlugin
                 devices.Add(new PiShockDeviceInfo($"Shocker {i}", sharecodes[i]));
             }
 
-            var userInfo = await PiShockAPI.GetUserInfoFromAPI(_configUserName.Value, _configAPIKey.Value);
+            Logger.LogInfo(_configAPIKey.Value);
+
+			var userInfo = await PiShockAPI.GetUserInfoFromAPI(_configUserName.Value, _configAPIKey.Value);
             userInfo = userInfo.WithDevices(devices);
 
             var controller = new PiShockController(PiShockAPI, userInfo);
@@ -116,7 +118,7 @@ public class REPOShock : BaseUnityPlugin
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex.Message);
+            Logger.LogError(ex.ToString());
         }
 
 
