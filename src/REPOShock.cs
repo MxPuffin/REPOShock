@@ -52,7 +52,11 @@ public class REPOShock : BaseUnityPlugin
 
         await LoadConfigAndLogin();
 
-        Patch();
+		ModGlobals.SteamID = SteamClient.SteamId.ToString();
+		Logger.LogInfo($"Setting steam ID for the session: {ModGlobals.SteamID}");
+
+
+		Patch();
 
         Logger.LogInfo($"{Info.Metadata.GUID} v{Info.Metadata.Version} has loaded!");
     }

@@ -7,7 +7,7 @@ namespace REPOShock.src;
 
 internal static class ModGlobals
 {
-    internal static string steamID { get; set; } = string.Empty;
+    internal static string SteamID { get; set; } = string.Empty;
     internal static bool IsAlive { get; set; } = true;
     internal static string CurrentLevel { get; set; } = "";
     internal static bool IsSafeLevel { get; set; } = true;

@@ -13,7 +13,7 @@ static class PlayerAvatarPatch
     private static void PlayerDeathRPC(PlayerAvatar __instance)
     {
 
-        if (SemiFunc.PlayerGetSteamID(__instance) != ModGlobals.steamID)
+        if (SemiFunc.PlayerGetSteamID(__instance) != ModGlobals.SteamID)
             return;
         PlayerDeath();
     }

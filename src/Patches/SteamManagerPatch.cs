@@ -7,16 +7,16 @@ using System.Text;
 
 namespace REPOShock.src.Patches
 {
-
-    [HarmonyPatch(typeof(SteamManager))]
-    static class SteamManagerPatch
-    {
-
-        [HarmonyPostfix, HarmonyPatch(nameof(SteamManager.Start))]
-        private static void SteamManagerStart()
-        {
-            ModGlobals.steamID = SteamClient.SteamId.ToString();
-            REPOShock.Logger.LogInfo($"Setting steam ID for the session: {ModGlobals.steamID}");
-        }
-    }
+	// Something borked here, but idk lol, moved setting steam ID to mod init
+//    [HarmonyPatch(typeof(SteamManager))]
+//    static class SteamManagerPatch
+//    {
+//
+//        [HarmonyPostfix, HarmonyPatch(nameof(SteamManager.Start))]
+//        private static void SteamManagerStart()
+//        {
+//            ModGlobals.SteamID = SteamClient.SteamId.ToString();
+//            REPOShock.Logger.LogInfo($"Setting steam ID for the session: {ModGlobals.SteamID}");
+//        }
+//    }
 }

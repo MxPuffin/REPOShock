@@ -13,7 +13,7 @@ static class PlayerHealthPatch
     [HarmonyPrefix, HarmonyPatch(nameof(PlayerHealth.Hurt))]
     private static void TakeDamage(ref int damage, PlayerHealth __instance)
     {
-        if (SemiFunc.PlayerGetSteamID(__instance.playerAvatar) != ModGlobals.steamID)
+        if (SemiFunc.PlayerGetSteamID(__instance.playerAvatar) != ModGlobals.SteamID)
             return;
 
         if (ModGlobals.IsSafeLevel)
