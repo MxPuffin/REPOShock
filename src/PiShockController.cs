@@ -1,14 +1,11 @@
-﻿using PiShockClassLibrary.Models;
-using PiShockClassLibrary.Services;
-using PiShockClassLibrary;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using PiShockLibrary.Enums;
 using System.Threading.Tasks;
-using PiShockLibrary.Models;
 using Sirenix.Serialization.Utilities;
 using System.Linq;
+using REPOShock.src.PiShockLibrary.Services;
+using REPOShock.src.PiShockLibrary.Models;
+using REPOShock.src.PiShockLibrary.Enums;
 
 namespace REPOShock.src
 {
@@ -23,12 +20,10 @@ namespace REPOShock.src
             _userInfo = piShockUserInfo;
         }
 
-        public static int ClampShock(int intensity)
-        {
-            return Math.Clamp(intensity, 1, ConfigHandler.ConfigMaxIntensity.Value);
-        }
+        public static int ClampShock(int intensity) =>
+            Math.Clamp(intensity, 1, ConfigHandler.MaxIntensity.Value);
 
-        public void OperatePiShock(int intensity, int duration, PiShockOperations op)
+        public void OperatePiShock(int intensity, int duration, PiShockOperation op)
         {
             Task.Run(async () =>
             {
@@ -36,8 +31,8 @@ namespace REPOShock.src
 
                 _userInfo.Devices.ForEach(device =>
                 {
-                    var body = new PiShockOperateRequestBody(_userInfo, op, device.ShareCode, intensity, duration, "R.E.P.O Shock");
-                    tasks.Add(_piShockAPI.SendOperationRequest(body));
+                    var body = new PiShockOperateRequestBody(op, intensity, duration, "R.E.P.O Shock");
+                    tasks.Add(_piShockAPI.SendOperationRequest(body, device.ShockerId));
                 });
 
                 var results = await Task.WhenAll(tasks);

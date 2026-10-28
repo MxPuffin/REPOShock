@@ -13,10 +13,8 @@ namespace REPOShock.src.Patches
         [HarmonyPostfix, HarmonyPatch(nameof(PhysGrabObject.GrabEnded))]
         private static void GrabEndedPostFix(PhysGrabObject __instance)
         {
-            if (!__instance.isValuable)
-                return;
-            if (!__instance.heldByLocalPlayer)
-                return;
+            if (!__instance.isValuable) { return; }
+            if (!__instance.heldByLocalPlayer) { return; }
 
             ModGlobals.LastHeldItemPickupTime = Time.time;
             ModGlobals.LastOffensiveGracePeriodTime = 0;

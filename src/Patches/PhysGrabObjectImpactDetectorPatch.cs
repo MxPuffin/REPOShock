@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using PiShockLibrary.Enums;
+using REPOShock.src.PiShockLibrary.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,38 +21,26 @@ static class PhysGrabObjectImpactDetectorPatch
         // TODO
         // Create a custom class to store in recently held object
         // To keep track of 
-        if (!ConfigHandler.ConfigBreakIgnoreEnemy.Value)
-            return;
+        if (!ConfigHandler.BreakIgnoreEnemy.Value) { return; }
 
-        if (collision.transform.CompareTag("Enemy"))
-        {
-            _lastHitEnemy = true;
-        }
-        else
-        {
-            _lastHitEnemy = false;
-        }
+        if (collision.transform.CompareTag("Enemy")) { _lastHitEnemy = true; }
+        else { _lastHitEnemy = false; }
     }
 
     [HarmonyPostfix, HarmonyPatch(nameof(PhysGrabObjectImpactDetector.BreakRPC))]
     private static void ItemImpactBreakRPC(float valueLost, ref bool _loseValue, int breakLevel, PhysGrabObjectImpactDetector __instance)
     {
-        if (!ConfigHandler.ConfigEnableBreakShock.Value)
-            return;
-        if (!_loseValue)
-            return;
+        if (!ConfigHandler.EnableBreakShock.Value) { return; }
+        if (!_loseValue) { return; }
 
         ItemBreakPostfix(valueLost, breakLevel, __instance);
     }
 
     private static void ItemBreakPostfix(float valueLost, int breakLevel, PhysGrabObjectImpactDetector __instance)
     {
-        if (!ModGlobals.IsAlive)
-            return;
-        if (ModGlobals.CurrentLevel == "Arena")
-            return;
-        if (!__instance.isValuable)
-            return;
+        if (!ModGlobals.IsAlive) { return; }
+        if (ModGlobals.CurrentLevel == "Arena") { return; }
+        if (!__instance.isValuable) { return; }
 
 
         bool isHeldByLocalPlayer = __instance.physGrabObject.heldByLocalPlayer;
@@ -78,9 +66,7 @@ static class PhysGrabObjectImpactDetectorPatch
 
     private static void ShockPlayerIfNecessary(GameObject damagedObject, float valueLost, float originalValue, bool isHeldByLocalPlayer)
     {
-        if (!ModGlobals.RecentlyHeldObjects.ContainsKey(damagedObject))
-            return;
-
+        if (!ModGlobals.RecentlyHeldObjects.ContainsKey(damagedObject)) { return; }
         var lastHeldTime = ModGlobals.RecentlyHeldObjects[damagedObject];
 
         if (isHeldByLocalPlayer && _lastHitEnemy)
@@ -106,7 +92,7 @@ static class PhysGrabObjectImpactDetectorPatch
             return;
         }
 
-        if (Time.time - lastHeldTime <= ConfigHandler.ConfigBreakShockWindow.Value)
+        if (Time.time - lastHeldTime <= ConfigHandler.BreakShockWindow.Value)
         {
             ShockPlayer(valueLost, originalValue, damagedObject.name);
         }
@@ -117,23 +103,22 @@ static class PhysGrabObjectImpactDetectorPatch
     {
         int intensity;
 
-        if (!ConfigHandler.ConfigMapValueToShock.Value)
+        if (!ConfigHandler.MapValueToShock.Value)
         {
-            intensity = (int)Math.Ceiling(valueLost * ConfigHandler.ConfigBreakValueDmgMult.Value);
+            intensity = (int)Math.Ceiling(valueLost * ConfigHandler.BreakValueDmgMult.Value);
         }
         else
         {
-            intensity = MapValue(valueLost, 0, originalValue, 0, ConfigHandler.ConfigMaxIntensity.Value);
+            intensity = MapValue(valueLost, 0, originalValue, 0, ConfigHandler.MaxIntensity.Value);
         }
 
         intensity = PiShockController.ClampShock(intensity);
 
-        REPOShock.PiShockController?.OperatePiShock(intensity, 1, PiShockOperations.Shock);
+        REPOShock.PiShockController?.OperatePiShock(intensity, ConfigHandler.HurtDuration.Value, PiShockOperation.Shock);
         REPOShock.Logger.LogInfo($"[Damage Item Event] Played damaged {objName} for {valueLost} - Shocking for {intensity}%");
     }
 
-    private static int MapValue(float value, float start1, float stop1, float start2, float stop2)
-    {
-        return (int)(start1 + (value - start1) * (stop2 - start2) / (stop1 - start1));
-    }
+    private static int MapValue(float value, float start1, float stop1, float start2, float stop2) =>
+        (int)(start1 + (value - start1) * (stop2 - start2) / (stop1 - start1));
+    
 }

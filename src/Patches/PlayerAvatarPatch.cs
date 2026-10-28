@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using PiShockLibrary.Enums;
+using REPOShock.src.PiShockLibrary.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,22 +12,19 @@ static class PlayerAvatarPatch
     [HarmonyPostfix, HarmonyPatch(nameof(PlayerAvatar.PlayerDeathRPC))]
     private static void PlayerDeathRPC(PlayerAvatar __instance)
     {
-
-        if (SemiFunc.PlayerGetSteamID(__instance) != ModGlobals.SteamID)
-            return;
+        if (SemiFunc.PlayerGetSteamID(__instance) != ModGlobals.SteamID) { return; }
         PlayerDeath();
     }
 
     private static void PlayerDeath()
     {
-        if (ModGlobals.IsSafeLevel)
-            return;
+        if (ModGlobals.IsSafeLevel) { return; }
 
         ModGlobals.IsAlive = false;
-        int intensity = ConfigHandler.ConfigDeathIntensity.Value;
-        int duration = ConfigHandler.ConfigDeathDuration.Value;
-        REPOShock.PiShockController?.OperatePiShock(intensity, duration, PiShockOperations.Shock);
-        REPOShock.Logger.LogInfo($"Player died, shocking with {intensity}% for {duration}s");
+        int intensity = ConfigHandler.DeathIntensity.Value;
+        int duration = ConfigHandler.DeathDuration.Value;
+        REPOShock.PiShockController?.OperatePiShock(intensity, duration, PiShockOperation.Shock);
+        REPOShock.Logger.LogInfo($"Player died, shocking with {intensity}% for {(duration > 15 ? duration / 15 : duration)}s");
     }
 
     [HarmonyPostfix, HarmonyPatch(nameof(PlayerAvatar.Revive))]

@@ -26,10 +26,7 @@ internal static class ModGlobals
         CurrentLevel = level;
         EvaluateIsSafeLevel();
 
-        if (_lastLevelMessage < 3)
-        {
-            return;
-        }
+        if (_lastLevelMessage < 3) {  return; }
 
         REPOShock.Logger.LogInfo($"Updating Level to {level} - Resetting Mod Global Variables");
         _lastLevelMessage = Time.time;
