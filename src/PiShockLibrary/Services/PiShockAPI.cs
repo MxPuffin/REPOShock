@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using REPOShock.src.PiShockLibrary.Models.Response;
 using REPOShock.src.PiShockLibrary.Models;
-using REPOShock.src.PiShockLibrary.Utilities;
 using Newtonsoft.Json;
 using REPOShock.src.PiShockLibrary.Exceptions;
 using ExitGames.Client.Photon.StructWrapping;
 using BepInEx.Logging;
+using UnityEngine.CrashReportHandler;
 
 
 namespace REPOShock.src.PiShockLibrary.Services;
@@ -52,35 +52,37 @@ public class PiShockAPI : IPiShockAPI
         NullValueHandling = NullValueHandling.Ignore
     };
 
+
     public PiShockAPI(HttpClient httpClient, string APIKey, string? url = null)
     {
         if (string.IsNullOrWhiteSpace(APIKey)) { throw new ArgumentNullException(nameof(APIKey), "APIKey provided is null"); }
 
         Client = httpClient;
         Client.BaseAddress = new(url ?? BaseUrl);
+        Client.DefaultRequestHeaders.Clear();
         Client.DefaultRequestHeaders.Add("X-PiShock-Api-Key", APIKey);
     }
 
     /// <inheritdoc />
     public async Task<PiShockUserInfo?> GetUserInfo()
     {
-        PiShockLogger.Log("Validating APIKey...");
+        REPOShock.Logger.LogInfo("Validating ApiKey...");
         try
         {
             var res = await Client.GetAsync("/Account");
             res.EnsureSuccessStatusCode();
             var userInfo = JsonConvert.DeserializeObject<AccountResponse>(await res.Content.ReadAsStringAsync() ?? throw new PiShockAPIException("Failed to deserialize account information."));
 
-            PiShockLogger.Log($"Login Successful!: {userInfo.Username}");
+            // REPOShock.Logger.LogInfo($"Login Successful!: {userInfo.Username}");
             return new PiShockUserInfo(userInfo.UserId, userInfo.Username, Client.DefaultRequestHeaders.First(x => x.Key == "X-PiShock-Api-Key").Value.ToString());
         }
         catch (HttpRequestException ex)
         {
-            PiShockLogger.LogError($"Failed to validate your APIKey, {ex.Message}");
+            REPOShock.Logger.LogError($"Failed to validate your ApiKey, {ex.Message}");
         }
         catch (Exception ex)
         {
-            PiShockLogger.LogError(ex.Message);
+            REPOShock.Logger.LogError(ex.Message);
         }
         return null;
     }
@@ -88,7 +90,7 @@ public class PiShockAPI : IPiShockAPI
     /// <inheritdoc />
     public async Task<PiShockUserInfo?> GetUserShockers(PiShockUserInfo userInfo)
     {
-        PiShockLogger.Log("Attempting to fetch users Shocker!");
+        REPOShock.Logger.LogInfo("Attempting to fetch users Shockers");
 
         try
         {
@@ -103,11 +105,11 @@ public class PiShockAPI : IPiShockAPI
         }
         catch (HttpRequestException ex)
         {
-            PiShockLogger.LogError($"Failed to fetch your devices, {ex.Message}");
+            REPOShock.Logger.LogError($"Failed to fetch your devices, {ex.Message}");
         }
         catch (Exception ex)
         {
-            PiShockLogger.LogError(ex.Message);
+            REPOShock.Logger.LogError(ex.Message);
         }
         return null;
     }
@@ -124,11 +126,11 @@ public class PiShockAPI : IPiShockAPI
         }
         catch (HttpRequestException ex)
         {
-            PiShockLogger.LogError($"Failed to operate your device, {ex.Message}");
+            REPOShock.Logger.LogError($"Failed to operate your device, {ex.Message}");
         }
         catch (Exception ex)
         {
-            PiShockLogger.LogError($"Error in SendOperationRequest: {ex.Message}");
+            REPOShock.Logger.LogError($"Error in SendOperationRequest: {ex.Message}");
         }
         return false;
     }

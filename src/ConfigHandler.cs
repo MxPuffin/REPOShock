@@ -1,6 +1,9 @@
 ﻿using BepInEx.Configuration;
+using BepInEx.Logging;
+using REPOShock.src.Auth;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,10 +29,16 @@ namespace REPOShock.src
         public static ConfigEntry<float> ThrownOffensiveGracePeriod { get; private set; } = null!;
         public static ConfigEntry<float> HitOffensiveGracePeriod { get; private set; } = null!;
 
-        public static void InitConfig()
+        public static void InitConfig(ConfigFile cfg)
         {
             // Settings Config
-            MaxIntensity = REPOShock.CFG.Bind
+            BindConfigEntries(cfg);
+            CleanupLegacyConfig(cfg);
+        }
+
+        private static void BindConfigEntries(ConfigFile cfg)
+        {
+            MaxIntensity = cfg.Bind
             (
                 "Settings",
                 "Max_Intensity",
@@ -45,7 +54,7 @@ namespace REPOShock.src
                 )
             );
 
-            DamageInteravl = REPOShock.CFG.Bind
+            DamageInteravl = cfg.Bind
             (
                 "Settings",
                 "Damage_Interval",
@@ -61,7 +70,7 @@ namespace REPOShock.src
                 )
             );
 
-            DeathIntensity = REPOShock.CFG.Bind
+            DeathIntensity = cfg.Bind
             (
                 "Settings",
                 "Death_Intensity",
@@ -77,7 +86,7 @@ namespace REPOShock.src
                 )
             );
 
-            DeathDuration = REPOShock.CFG.Bind
+            DeathDuration = cfg.Bind
             (
                 "Settings",
                 "Death_Duration",
@@ -94,7 +103,7 @@ namespace REPOShock.src
                 )
             );
 
-            HurtDuration = REPOShock.CFG.Bind
+            HurtDuration = cfg.Bind
             (
                 "Settings",
                 "Hurt_Duration",
@@ -113,7 +122,7 @@ namespace REPOShock.src
 
             // Config for breaking items
 
-            EnableBreakShock = REPOShock.CFG.Bind
+            EnableBreakShock = cfg.Bind
             (
                 "Settings_Items",
                 "Enable_Breaking_Item_Shocks",
@@ -124,7 +133,7 @@ namespace REPOShock.src
                 )
             );
 
-            MapValueToShock = REPOShock.CFG.Bind
+            MapValueToShock = cfg.Bind
             (
                 "Settings_Items",
                 "Map_Value_to_Shock",
@@ -137,7 +146,7 @@ namespace REPOShock.src
                 )
             );
 
-            BreakValueDmgMult = REPOShock.CFG.Bind
+            BreakValueDmgMult = cfg.Bind
             (
                 "Settings_Items",
                 "Value_Loss_Multiplier",
@@ -154,18 +163,18 @@ namespace REPOShock.src
                 )
             );
 
-            BreakShockWindow = REPOShock.CFG.Bind
+            BreakShockWindow = cfg.Bind
             (
                 "Settings_Items",
                 "Break_Shock_Window",
                 15,
                 new ConfigDescription
                 (
-                    "The amount of time a Valuable Object you have touched is tied to you.\n" 
-                    + "If it gets damaged during this period, you will get shocked.", 
+                    "The amount of time a Valuable Object you have touched is tied to you.\n"
+                    + "If it gets damaged during this period, you will get shocked.",
                     new AcceptableValueRange<int>
                     (
-                        1, 
+                        1,
                         120
                     )
                 )
@@ -173,7 +182,7 @@ namespace REPOShock.src
 
             // Config for breaking items offensive
 
-            BreakIgnoreEnemy = REPOShock.CFG.Bind
+            BreakIgnoreEnemy = cfg.Bind
             (
                 "Settings_Items",
                 "Ignore_Hitting_Enemies",
@@ -184,40 +193,84 @@ namespace REPOShock.src
                 )
             );
 
-            ThrownOffensiveGracePeriod = REPOShock.CFG.Bind
+            ThrownOffensiveGracePeriod = cfg.Bind
             (
                 "Settings_Items",
                 "Thrown_Offensive_Grace_Period",
                 2.0f,
                 new ConfigDescription
                 (
-                    "The amount of time an object you let go of has to hit an enemy before it shocks you.\n" 
-                    + "This also starts the HitOffensiveGracePeriod, so you can keep using it as a weapon.", 
+                    "The amount of time an object you let go of has to hit an enemy before it shocks you.\n"
+                    + "This also starts the HitOffensiveGracePeriod, so you can keep using it as a weapon.",
                     new AcceptableValueRange<float>
                     (
-                        1f, 
+                        1f,
                         5f
                     )
                 )
             );
-            
-            HitOffensiveGracePeriod = REPOShock.CFG.Bind
+
+            HitOffensiveGracePeriod = cfg.Bind
             (
                 "Settings_Items",
                 "Hit_Offensive_Grace_Period",
                 3.0f,
                 new ConfigDescription
                 (
-                    "The amount of time an object you use as a weapon has before it causes you to get\n" 
-                    + "shocked again. After this times up, if you don't hit an enemy again, the item goes\n" 
-                    + "back to shocking you if it takes damage.", 
+                    "The amount of time an object you use as a weapon has before it causes you to get\n"
+                    + "shocked again. After this times up, if you don't hit an enemy again, the item goes\n"
+                    + "back to shocking you if it takes damage.",
                     new AcceptableValueRange<float>
                     (
-                        1f, 
+                        1f,
                         5f
                     )
                 )
             );
+        }
+
+        private static void CleanupLegacyConfig(ConfigFile cfg)
+        {
+            const string defaultValue = "__";
+
+            ConfigDefinition[] defs =
+            {
+                new("Auth_PiShock", "APIKey"),
+                new("Auth_PiShock", "ShareCodes"),
+                new("Auth_PiShock", "UserName"),
+            };
+
+            var changed = false;
+            var saveOnSet = cfg.SaveOnConfigSet;
+            cfg.SaveOnConfigSet = false;
+
+            try
+            {
+                foreach (var def in defs)
+                {
+                    var entry = cfg.Bind(def, defaultValue);
+
+                    if (entry.Value != defaultValue)
+                    {
+                        if (def.Key == "APIKey")
+                        {
+                            REPOShock.Logger.LogInfo($"Migrating existing {def.Key} to new system.");
+                            ApiKeyStore.SaveKey(entry.Value);
+                        }
+
+                        REPOShock.Logger.LogInfo($"Removed legacy config {def.Section}/{def.Key}");
+                        changed = true;
+                    }
+
+                    cfg.Remove(def);
+                }
+            }
+            finally
+            {
+                cfg.SaveOnConfigSet = saveOnSet;
+            }
+
+            if (changed) { cfg.Save(); }
         }
     }
 

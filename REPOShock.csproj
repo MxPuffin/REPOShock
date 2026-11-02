@@ -5,7 +5,7 @@
     <LangVersion>11</LangVersion>
     <Nullable>enable</Nullable>
     <Authors>mxpuffin</Authors>
-    <Version>2.0.0</Version>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <!-- Add Package Sources -->
@@ -29,6 +29,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Thunderstore\build\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="REPOModding-MenuLib" Version="2.*" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />

@@ -14,12 +14,8 @@ I implemented a feature that allows you to use Valuable Objects as weapons witho
 ## Usage
 To use this, run the game at least once after installing to generate a config file
 
-**DO NOT SHARE MODPACKS WITH THIS MOD CONFIGURED IN IT**
-if you do, you will also be sharing your API key, which anyone you share that pack with will also get.
-It is fine to share a pack that **doesn't** have config set, but if you set your config and share a pack, other people will get your private keys.
-
-1. Open the Config file
-2. Enter your PiShock API Key
-3. Enter your desired config
+1. Launch the Game
+2. Click REPOShock in the top right
+3. If it says "Logged in as <Username>" you can press ESC to close that menu, otherwise, please enter your APIKey and press save.
 
 That should be it! If you have issues, check the BepIn Console for more details.
